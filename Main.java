@@ -1,87 +1,84 @@
-package dijsktra;
+package floydWarshall;
 
+import dijsktra.Noeud;
 
- class Main {
-	 
-	 static Double infini=Double.POSITIVE_INFINITY;
-	 static int getminIndex(Noeud []t) {
-	
-	        // Initialize min value
-	        Double min =Double.POSITIVE_INFINITY;
-	        int minIndex=-1;
-	 
-	        for (int i = 0; i < t.length; i++)
-	            if (t[i].getVal() <= min && !t[i].isM())
-	            {
-	                min = t[i].getVal();
-	                minIndex = i;
-	            }
-	 
-	        return minIndex;
-	    
-}
-public static void main(String args[]) {	
-		
-	//graphe de l'exo 2 td2
-	/*	Double graphe [][] = {
-						{infini,1d,4d,7d,11d,14d,16d},
-						{infini,infini,2d,infini,infini,infini,infini},
-						{infini,infini,infini,3,infini,infini,infini},
-						{infini,infini,infini,infini,4d,infini,infini},
-						{infini,infini,infini,infini,infini,3d,infini},
-						{infini,infini,infini,infini,infini,infini,2d},
-						{infini,infini,infini,2d,infini,infini,infini}
-					 };*/
-	
-	//graphe de l'exo 3 td2
-	Double graphe [][] = {
-			{infini,2d,6d,8d,infini,infini,infini,infini},
-			{infini,infini,infini,infini,1d,infini,infini,infini},
-			{infini,1d,infini,2d,infini,infini,infini,infini},
-			{infini,infini,infini,infini,infini,3d,infini,7d},
-			{infini,infini,2d,infini,infini,8d,9d,infini},
-			{infini,infini,4d,infini,infini,infini,1d,infini},
-			{infini,infini,infini,infini,infini,infini,infini,2d},
-			{infini,infini,infini,infini,infini,infini,infini,infini},
-		 };
-	
-		Noeud nodes[] = new Noeud[graphe.length];
-		
-		djisktra(graphe,nodes);		
-		
+public class Main {
 
-		// affichage
-		System.out.println("noeuds \t| distance de la source   pere");
-		for (int i = 0; i < nodes.length; i++) 
-			System.out.println(i+1 +" \t "+nodes[i].getVal()+" \t \t \t   "+nodes[i].getPrecedent());
-		
+	static Double infini= Double.POSITIVE_INFINITY;
 	
+	public static void main(String[] args) {
+		
+		Double couts [][] = {
+				{0d,2d,infini,6d},
+				{infini,0d,-2d,infini},
+				{infini,5d,0d,5d},
+				{-4d,-1d,infini,0d},
+		};
+		
+		int p[][]=new int[couts.length][couts.length];
+		for (int i = 0; i < p.length; i++) {
+			for (int j = 0; j < p.length; j++) {
+				p[i][j]=i+1;
+			}
+		}
+		Double D[][]=null;
+		floyd(4,couts,D);
+		
 	}
 
-
-	static void djisktra(Double [][] graphe,Noeud [] nodes) {
+static void floyd(int n,Double  [][] couts,Double [][] D) {
 		
 		//initialisation des neoud a l'inifi excepter le premier qui est à 0
-				for (int i = 0; i < nodes.length; i++) {
-					nodes[i] = new Noeud();
-					nodes[i].setVal(infini);
-					nodes[i].setM(false);
-				}
-				nodes[0].setVal(0d);
+				//D°
+			Double [][]LastD;
+			D=couts.clone();
+			LastD=copy(D);
+			print(D,LastD, 0);
+			//calcul du pluscourt chemin
+			for (int k = 0; k < n; k++) {
 				
-				//calcul du pluscourt chemin
-				for (int i = 0; i < graphe.length-1; i++) {
-					int minIndex=getminIndex(nodes);
-					nodes[minIndex].setM(true);
-					for (int j = 0; j < graphe.length; j++) {
-						if( graphe[minIndex][j] != infini && nodes[j].getVal() > (nodes[minIndex].getVal() + graphe[minIndex][j])) {
+				for (int i = 0; i < n; i++) {
+					
+						for (int j = 0; j < n; j++) {
 							
-							nodes[j].setVal(nodes[minIndex].getVal() + graphe[minIndex][j]);
-							nodes[j].setPrecedent(minIndex+1);
+							D[i][j] = Math.min(D[i][j],D[i][k]+D[k][j]);					
 						}
-						
 					}
-				}
-			
+					
+				print(D,LastD,k+1);
+				LastD = copy(D);
+			}
 	}
+
+
+
+  static Double[][] copy(Double[][] d) {
+	  Double [][] arrayCop = new Double[d.length][d.length];
+	for (int i = 0; i < d.length; i++) {
+		for (int j = 0; j < d.length; j++) {
+			arrayCop[i][j] = d[i][j];
+		}
+	}
+	return arrayCop;
+ }
+ static void print(Double[][] d,Double[][] lastD, int k) {
+	// TODO Auto-generated method stub
+	System.out.println("D^"+k+"-----------------------");
+	for (int i = 0; i < d.length; i++) {
+		
+		for (int j = 0; j < d.length; j++) {
+			if (Double.compare(lastD[i][j],d[i][j]) == 0) 
+				System.out.print(d[i][j]+"\t");
+			
+			else 
+				System.err.print(d[i][j]+"\t");
+			
+			if(j == 3 || j == 7 || j == 11 || j == 15)
+				System.out.println("\n");
+		}
+		
+	}
+	System.out.println("----------------------");
+}		
+	
 }
